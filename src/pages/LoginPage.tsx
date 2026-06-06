@@ -22,9 +22,16 @@ export const LoginPage = () => {
     setIsLoading(true);
     try {
       const user = await authService.login();
+      console.log('Login result:', user);
+      
       if (user) {
+        console.log('Setting user:', user);
         setUser(user);
         setAuthenticated(true);
+        // Force a small delay to ensure state updates
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } else {
+        console.warn('No user returned from authService.login()');
       }
     } catch (error) {
       console.error('Login failed:', error);

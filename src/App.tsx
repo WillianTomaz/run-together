@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
+import NetlifyIdentity from 'netlify-identity-widget';
 import { useAuthStore } from './stores/authStore';
 import { useMapStore } from './stores/mapStore';
 import { authService } from './services/auth/authService';
@@ -12,6 +13,8 @@ import { CreateEventPage } from './pages/CreateEventPage';
 import { MessagesPage } from './pages/MessagesPage';
 import { SideMenu } from './components/Navigation/SideMenu';
 import { Button } from './components/Common/Button';
+import { v4 as uuidv4 } from 'uuid';
+import type { User } from './types/index';
 
 function AppContent() {
   const user = useAuthStore((state) => state.user);
@@ -38,6 +41,27 @@ function AppContent() {
         // Load all users
         const allUsers = userService.getAllUsers();
         setUsers(allUsers);
+
+        // Setup Netlify Identity listeners
+        NetlifyIdentity.on('login', (netlifyUser: any) => {
+          console.log('Netlify Identity login event:', netlifyUser);
+          if (netlifyUser && netlifyUser.email) {
+            const appUser: User = {
+              id: uuidv4(),
+              email: netlifyUser.email || '',
+              name: netlifyUser.user_metadata?.full_name || netlifyUser.email || 'User',
+              avatar: netlifyUser.user_metadata?.avatar_url,
+              latitude: -23.5505,
+              longitude: -46.6333,
+              sportType: 'running',
+              lastUpdated: new Date(),
+              createdAt: new Date(),
+            };
+            userService.setCurrentUser(appUser);
+            setUser(appUser);
+            setAuthenticated(true);
+          }
+        });
       } catch (error) {
         console.error('Error initializing app:', error);
       } finally {

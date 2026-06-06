@@ -12,6 +12,7 @@ declare module 'netlify-identity-widget' {
     open: (mode?: string) => Promise<User | null>;
     logout: () => Promise<void>;
     currentUser: () => User | null;
+    on: (event: string, callback: (user: any) => void) => void;
   }
 
   const NetlifyIdentity: Identity;
