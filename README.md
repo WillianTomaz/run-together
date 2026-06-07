@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/88daba3d-41ac-45b1-b94c-814c5a0adcff/deploy-status)](https://app.netlify.com/projects/run-together/deploys)
+
 # 🏃 Let's Run Together - Plataforma de Encontro para Corredores
 
 Uma plataforma web moderna para encontrar amigos e pessoas para praticar esportes juntas no mesmo dia e horário.
