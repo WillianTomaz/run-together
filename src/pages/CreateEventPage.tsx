@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useEventStore } from '../stores/eventStore';
 import { Button } from '../components/Common/Button';
-import { Card } from '../components/Common/Card';
 import type { SportType } from '../types/index';
 import { SPORTS } from '../constants/index';
-import { FiPlus, FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiFileText, FiUsers } from 'react-icons/fi';
 import { v4 as uuidv4 } from 'uuid';
 import { eventService } from '../services/localStorage/eventService';
 
@@ -23,56 +22,40 @@ export const CreateEventPage = () => {
   const addEvent = useEventStore((state) => state.addEvent);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<FormData>({
+  const [form, setForm] = useState<FormData>({
     title: '',
     description: '',
     sportType: 'running',
     dateTime: '',
-    maxParticipants: undefined,
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'maxParticipants' ? (value ? parseInt(value) : undefined) : value,
-    }));
+    setForm((p) => ({ ...p, [name]: name === 'maxParticipants' ? (value ? parseInt(value) : undefined) : value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user || !formData.title || !formData.dateTime) {
-      alert('Preencha todos os campos obrigatórios');
-      return;
-    }
-
+    if (!user || !form.title || !form.dateTime) return;
     setIsSubmitting(true);
     try {
-      const newEvent = {
+      const ev = {
         id: uuidv4(),
-        title: formData.title,
-        description: formData.description,
+        title: form.title,
+        description: form.description,
         latitude: user.latitude,
         longitude: user.longitude,
-        sportType: formData.sportType,
-        dateTime: new Date(formData.dateTime),
+        sportType: form.sportType,
+        dateTime: new Date(form.dateTime),
         createdBy: user.id,
         followers: [user.id],
-        maxParticipants: formData.maxParticipants,
+        maxParticipants: form.maxParticipants,
         createdAt: new Date(),
       };
-
-      eventService.createEvent(newEvent);
-      addEvent(newEvent);
-      
-      alert('Evento criado com sucesso!');
+      eventService.createEvent(ev);
+      addEvent(ev);
       navigate('/events');
-    } catch (error) {
-      console.error('Error creating event:', error);
-      alert('Erro ao criar evento');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,116 +63,120 @@ export const CreateEventPage = () => {
 
   if (!user) return null;
 
+  const inputClass = "input";
+  const labelClass = "label";
+
   return (
-    <div className="p-4 md:p-6 max-w-2xl mx-auto">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-primary font-semibold mb-6 hover:underline"
-      >
-        <FiArrowLeft size={20} />
-        Voltar
-      </button>
+    <div className="h-full overflow-y-auto" style={{ background: "var(--bg-base)" }}>
+      <div className="p-5 md:p-8 max-w-2xl mx-auto">
 
-      <Card className="p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <FiPlus size={32} />
-          Criar Evento
-        </h1>
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm font-medium mb-6 transition-colors"
+          style={{ color: "var(--text-muted)" }}
+        >
+          <FiArrowLeft size={18} />
+          Voltar
+        </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Título do Evento *
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Ex: Corrida no Parque Ibirapuera"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              required
-            />
+        <div className="card p-6 md:p-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Criar Evento</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+              Reúna pessoas para praticar esportes na sua cidade
+            </p>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Descrição
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Descreva o evento..."
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Sport Type */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Tipo de Esporte *
-            </label>
-            <select
-              name="sportType"
-              value={formData.sportType}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              required
-            >
-              {(Object.entries(SPORTS) as Array<[SportType, typeof SPORTS[SportType]]>).map(([key, sport]) => (
-                <option key={key} value={key}>
-                  {sport.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Title */}
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><FiFileText size={13} /> Título *</span>
+              </label>
+              <input
+                name="title" value={form.title} onChange={handleChange}
+                placeholder="Ex: Corrida no Parque Ibirapuera"
+                className={inputClass} required
+              />
+            </div>
 
-          {/* DateTime */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Data e Hora *
-            </label>
-            <input
-              type="datetime-local"
-              name="dateTime"
-              value={formData.dateTime}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              required
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label className={labelClass}>Descrição</label>
+              <textarea
+                name="description" value={form.description} onChange={handleChange}
+                placeholder="Descreva o evento, ponto de encontro, ritmo esperado..."
+                rows={4} className={inputClass}
+              />
+            </div>
 
-          {/* Max Participants */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Participantes Máximos (opcional)
-            </label>
-            <input
-              type="number"
-              name="maxParticipants"
-              value={formData.maxParticipants || ''}
-              onChange={handleChange}
-              placeholder="Deixe em branco para ilimitado"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              min="1"
-            />
-          </div>
+            {/* Sport */}
+            <div>
+              <label className={labelClass}>Esporte *</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(Object.keys(SPORTS) as SportType[]).map((key) => {
+                  const s = SPORTS[key];
+                  const active = form.sportType === key;
+                  return (
+                    <button
+                      key={key} type="button" onClick={() => setForm((p) => ({ ...p, sportType: key }))}
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl text-xs font-semibold transition-all"
+                      style={{
+                        border: `2px solid ${active ? s.color : "var(--border)"}`,
+                        background: active ? `${s.color}18` : "var(--bg-card)",
+                        color: active ? s.color : "var(--text-muted)",
+                      }}
+                    >
+                      <span className="text-2xl">{s.label.split(' ')[0]}</span>
+                      <span>{s.label.split(' ').slice(1).join(' ')}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            isLoading={isSubmitting}
-            size="lg"
-            className="w-full mt-6"
-          >
-            Criar Evento
-          </Button>
-        </form>
-      </Card>
+            {/* DateTime */}
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><FiCalendar size={13} /> Data e Hora *</span>
+              </label>
+              <input
+                type="datetime-local" name="dateTime" value={form.dateTime} onChange={handleChange}
+                className={inputClass} required
+              />
+            </div>
+
+            {/* Max participants */}
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><FiUsers size={13} /> Máximo de Participantes</span>
+              </label>
+              <input
+                type="number" name="maxParticipants"
+                value={form.maxParticipants ?? ""}
+                onChange={handleChange}
+                placeholder="Sem limite"
+                min={2} className={inputClass}
+              />
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <Button type="submit" isLoading={isSubmitting} size="lg" className="flex-1">
+                Criar Evento
+              </Button>
+              <Button
+                type="button" variant="ghost" size="lg"
+                onClick={() => navigate(-1)}
+                style={{ border: "1px solid var(--border)" }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

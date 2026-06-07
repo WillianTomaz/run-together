@@ -9,6 +9,8 @@ export interface User {
   avatar?: string;
   latitude: number;
   longitude: number;
+  city: string;           // City selected by the user (required after login)
+  state: string;          // State code, e.g. "SP"
   sportType: SportType;
   lastUpdated: Date;
   createdAt: Date;

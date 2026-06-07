@@ -46,6 +46,8 @@ export const authService = {
         avatar: undefined,
         latitude: -23.5505,
         longitude: -46.6333,
+        city: '',     // Will be set via LocationSelectionModal
+        state: '',
         sportType: 'running',
         lastUpdated: new Date(),
         createdAt: new Date(),
@@ -74,8 +76,10 @@ export const authService = {
           email: currentUser.email || '',
           name: currentUser.user_metadata?.full_name || currentUser.email || 'User',
           avatar: currentUser.user_metadata?.avatar_url,
-          latitude: -23.5505,
-          longitude: -46.6333,
+          latitude: 0,
+          longitude: 0,
+          city: '',    // Will be set via LocationSelectionModal
+          state: '',
           sportType: 'running',
           lastUpdated: new Date(),
           createdAt: new Date(),

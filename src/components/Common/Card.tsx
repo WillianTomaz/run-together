@@ -1,11 +1,12 @@
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  padding?: boolean;
 }
 
-export const Card = ({ children, className = '' }: CardProps) => {
+export const Card = ({ children, className = '', padding = true }: CardProps) => {
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
+    <div className={`card ${padding ? 'p-5' : ''} ${className}`}>
       {children}
     </div>
   );
